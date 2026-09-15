@@ -24,15 +24,9 @@ def fr_typo(html):
 HERE = pathlib.Path(__file__).parent
 
 THEMES = {
-    # four deliveries: two brand systems, two hero treatments each
-    "a1": dict(prefix="/version-a1", css="a", color="#0F607B", preload=["Newsreader-normal-500.woff2", "InstrumentSans-normal-400.woff2"],
-               hero=("photo", "stock/cabinet-hero-b.jpg"), label="A1, bleus, photo du cabinet [PLACEHOLDER, à remplacer par une photo du cabinet de Meyrin]"),
-    "a2": dict(prefix="/version-a2", css="a", color="#0F607B", preload=["Newsreader-normal-500.woff2", "InstrumentSans-normal-400.woff2"],
-               hero=("photo", "photos/cabinet-room.jpg"), label="A2, bleus, photo du fauteuil et de l’écran"),
-    "b1": dict(prefix="/version-b1", css="b", color="#194D98", preload=["BricolageGrotesque-normal-700.woff2", "DMSans-normal-400.woff2"],
-               hero=("photo", "stock/cabinet-hero-b.jpg"), label="B1, rose et cobalt, photo du cabinet [PLACEHOLDER, à remplacer par une photo du cabinet de Meyrin]"),
-    "b2": dict(prefix="/version-b2", css="b", color="#194D98", preload=["BricolageGrotesque-normal-700.woff2", "DMSans-normal-400.woff2"],
-               hero=("illus", "stock/illus-b2.jpg"), label="B2, rose et cobalt, illustration géométrique"),
+    # single delivery: the elegant blues theme, at the site root
+    "a1": dict(prefix="", css="a", color="#0F607B", preload=["Newsreader-normal-500.woff2", "InstrumentSans-normal-400.woff2"],
+               hero=("photo", "stock/cabinet-hero-b.jpg"), label="Cabinet Dentaire Meyrin [PLACEHOLDER photo, à remplacer par une photo du cabinet de Meyrin]"),
 }
 LANGS = {"fr": FR, "en": EN}
 

@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
-"""Build both directions of the Cabinet Dentaire Meyrin site.
+"""Build the Cabinet Dentaire Meyrin site.
 
     python3 site/build.py            # writes dist/
     python3 site/build.py --serve    # builds, then serves dist/ on :4821
 
 Output:
-    dist/index.html          comparison page
-    dist/version-a/...       Clinique éditoriale
-    dist/version-b/...       Cabinet graphique
-    dist/assets/...          shared fonts, photos (responsive jpg + webp)
+    dist/index.html          French home page (root)
+    dist/en/...               English pages
+    dist/assets/...          fonts, photos (responsive jpg + webp), illustrations
 """
 import html
 import json
@@ -152,43 +151,12 @@ def main():
     urls = []
     for theme, T in render.THEMES.items():
         urls += [T["prefix"] + u for u in render.build(theme, picture, head, write, ld)]
-    (DIST / "index.html").write_text(comparison(), encoding="utf-8")
     (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {C.DOMAIN}/sitemap.xml\n", encoding="utf-8")
     (DIST / "sitemap.xml").write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
         + "".join(f"  <url><loc>{C.DOMAIN}{u}</loc></url>\n" for u in urls if not u.endswith(".html"))
         + "</urlset>\n", encoding="utf-8")
     print(f"built {len(urls)} pages into {DIST}")
-
-
-def comparison():
-    return f"""<!doctype html>
-<html lang="fr-CH"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cabinet Dentaire Meyrin, quatre versions</title>
-<meta name="robots" content="noindex">
-<link rel="stylesheet" href="/assets/fonts/Newsreader.css"><link rel="stylesheet" href="/assets/fonts/Instrument-Sans.css">
-<link rel="stylesheet" href="/assets/fonts/Bricolage-Grotesque.css"><link rel="stylesheet" href="/assets/fonts/DM-Sans.css">
-<style>
-*{{box-sizing:border-box}}body{{margin:0;background:#f3f1ec;color:#252123;font:17px/1.6 "Instrument Sans",system-ui,sans-serif}}
-main{{max-width:1240px;margin:0 auto;padding:64px 24px 96px}}h1{{font:500 clamp(30px,4.2vw,52px)/1.12 Newsreader,Georgia,serif;letter-spacing:-.02em;margin:0 0 .4em;text-wrap:balance}}
-p{{max-width:62ch;text-wrap:pretty}}.two{{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:48px}}@media(max-width:700px){{.two{{grid-template-columns:1fr}}}}
-a.card{{display:block;padding:32px;border-radius:12px;color:inherit;text-decoration:none;min-height:320px;display:flex;flex-direction:column;justify-content:space-between}}
-a.card:focus-visible{{outline:3px solid #0F607B;outline-offset:3px}}
-.a{{background:#EAF5F9;border:1px solid #D9EEF5}}.a h2{{font:500 34px/1.15 Newsreader,Georgia,serif;color:#0B5269;margin:0 0 .3em}}
-.b{{background:#194D98;color:#FAF7F1}}.b h2{{font:800 34px/1.1 "Bricolage Grotesque",system-ui,sans-serif;margin:0 0 .3em;letter-spacing:-.02em}}
-.card p{{margin:0 0 1em}}.card span{{font-weight:600;text-decoration:underline;text-underline-offset:4px}}
-small{{display:block;margin-top:40px;color:#5f6467}}
-</style></head><body><main>
-<h1>Cabinet Dentaire, Meyrin et Nyon, quatre versions à comparer</h1>
-<p>Un seul site, deux cabinets, deux habillages. Ouvrez l’un ou l’autre, tout le site est derrière : accueil, cabinets, soins, équipe, première visite, urgences, contact.</p>
-<div class="two">
-<a class="card a" href="/version-a1/"><div><h2>A1, bleus, photo</h2><p>Bleu pâle et pétrole, titres en serif, angles droits. Hero sur la photo de la salle de soins.</p></div><span>Ouvrir A1</span></a>
-<a class="card a" href="/version-a2/"><div><h2>A2, bleus, photo</h2><p>Même système, hero sur la photo du fauteuil et de l’écran.</p></div><span>Ouvrir A2</span></a>
-<a class="card b" href="/version-b1/"><div><h2>B1, rose et cobalt, illustration plate</h2><p>Deux sans-serif, angles arrondis, illustration vectorielle aux aplats doux.</p></div><span>Ouvrir B1</span></a>
-<a class="card b" href="/version-b2/"><div><h2>B2, rose et cobalt, illustration géométrique</h2><p>Même système, illustration en blocs de couleur plus graphique.</p></div><span>Ouvrir B2</span></a>
-</div>
-<small>Page de comparaison interne, non indexée.</small>
-</main></body></html>"""
 
 
 if __name__ == "__main__":

@@ -397,6 +397,8 @@ section { padding: var(--band) 0; }
   .dock { display: grid; grid-template-columns: 1fr 1.6fr 1fr; gap: 6px; position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; background: rgba(250, 249, 246, .96); backdrop-filter: blur(10px); border-top: 1px solid var(--hair); padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px)); }
   .dock a { display: flex; align-items: center; justify-content: center; min-height: 48px; border-radius: var(--r); text-decoration: none; font-weight: 500; font-size: 15px; color: var(--petrol); border: 1.5px solid var(--hair); }
   .dock-main { background: var(--petrol); color: #fff !important; border-color: var(--petrol) !important; }
+  .dock a { min-width: 0; }
+
   body { padding-bottom: 72px; }
   .foot { padding-bottom: 72px; }
 }
@@ -626,8 +628,9 @@ body.search-open .search-btn { opacity: .5; }
 
 /* --- round 4: full-screen hero, dropdowns, about, cabinets, treatment sections, blog --- */
 .hero-full { padding: 0; }
-.hero-full .hero-in { min-height: calc(100vh - 84px); grid-template-columns: 6fr 5fr; gap: 64px; align-items: center; padding-block: 48px 56px; }
-.hero-full .hero-head h1 { max-width: 14ch; }
+.hero-full .hero-in { min-height: calc(100vh - 84px); grid-template-columns: 7fr 5fr; gap: 56px; align-items: center; padding-block: 48px 56px; }
+/* the hero headline gets a measure wide enough to sit on two lines at 1440, and a cap so it never outgrows its column */
+.hero-full .hero-head h1 { max-width: 20ch; font-size: clamp(30px, 4.6vw, 64px); text-wrap: balance; }
 .hero-full .lead { margin-top: 24px; }
 .hero-full .quick-list { margin-top: 40px; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .hero-full .quick-list a { min-height: 60px; padding: 14px 18px; font-size: 15.5px; }
@@ -973,3 +976,48 @@ body { background: var(--white); }
 /* --- bigger, more visual hero headline and lead --- */
 .hero-full .hero-head h1 { font-size: clamp(36px, 4.6vw, 64px); }
 .hero-full .lead { font-size: clamp(19px, 1.7vw, 23px); }
+
+/* Below ~430px the three labels no longer fit side by side at full type size, and the bar
+   pushed the whole page into a horizontal scroll. The itinerary link is dropped there,
+   since every practice page carries the same directions, and the two buttons keep their size. */
+@media (max-width: 430px) { .dock { grid-template-columns: 1fr 1.6fr; } .dock a:last-child { display: none; } }
+
+/* Mobile blowout guard. Grid and flex children default to min-width: auto, so a single
+   fixed column (the 180px label column of the practical list, the 260px question column
+   of a care list) forces its whole track wider than a phone screen, and the page then
+   scrolls sideways. These rules flatten those pairs and let every track shrink. */
+@media (max-width: 700px) {
+  .practical > div, .recap div, .facts > div, .facts-tight > div,
+  .care-list a, .hfam-txt .care-list a, .soin-row, .team-row,
+  .form-wrap, .video-slot { grid-template-columns: 1fr; }
+  .phero-side .phero-in { grid-template-columns: 1fr; }
+  .wrap > *, .article-in > *, .care-sec-in > *, .hfam-in > *, .prose > *, .side > * { min-width: 0; }
+}
+
+/* Last word on narrow screens. Several two-pane grids are re-declared further down the
+   sheet for the desktop composition, and those later rules were beating the mobile block
+   above, which left the text column of a split section at 83px on a phone. Re-asserting
+   the flatten at the end of the file keeps the cascade honest. */
+@media (max-width: 900px) {
+  .hero-in, .hero-row, .hero-full .hero-in, .about-in, .hfam-in, .cab-contact-in,
+  .philo-in, .cont-in, .visite-in, .close-in, .sec-head-split, .fam-in, .profile,
+  .urg-in, .vital-in, .ccols, .form-in, .faq-in, .loc-grid, .care-sec-in, .article-in,
+  .vsteps-in, .loc-facts-in, .team-row, .phero-in, .phero-img .phero-in,
+  .phero-urg .phero-in, .phero-side .phero-in, .form-wrap {
+    grid-template-columns: 1fr;
+  }
+  .hfam-flip .hfam-visual { order: 0; }
+}
+
+/* The statement and the paragraph that explains it were touching, with no gap at all. */
+.statement + p { margin-top: 20px; }
+
+/* On a phone the 16:9 still is about 197px tall, so the caption that sits over it on desktop
+   ran across the play button and over the image edge, unreadable. Below 700px the caption
+   takes its own row on a solid panel and the button keeps the still to itself. */
+@media (max-width: 700px) {
+  .video-slot { grid-template-rows: auto auto; }
+  .video-slot picture, .video-play { grid-area: 1 / 1; }
+  .video-play { place-self: center; }
+  .video-txt { grid-area: 2 / 1; align-self: start; max-width: none; background: var(--deep); padding: 20px; }
+}

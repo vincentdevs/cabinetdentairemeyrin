@@ -1,5 +1,10 @@
-/* Version A, les bleus. Newsreader pour les titres, Instrument Sans pour le texte.
-   Blanc chaud, bleu pâle, pétrole. Angles droits, filets fins, photographie carrée. */
+/* Reworked 1, dérivé de la version élégante. Newsreader pour les titres,
+   Instrument Sans pour le texte. Blanc chaud, bleu pâle, pétrole. Angles droits,
+   filets fins, photographie carrée.
+   Ce qui distingue cette ligne de celle dont elle vient : plus aucun dessin de
+   dent ni de courbe dans les angles. La texture vient du grain de papier, la
+   hiérarchie vient des filets et des numéros, et le mouvement vient des lignes,
+   jamais des formes. Le bloc qui porte ces règles est en fin de fichier. */
 @import url("/assets/fonts/Newsreader.css");
 @import url("/assets/fonts/Instrument-Sans.css");
 
@@ -1021,3 +1026,309 @@ body { background: var(--white); }
   .video-play { place-self: center; }
   .video-txt { grid-area: 2 / 1; align-self: start; max-width: none; background: var(--deep); padding: 20px; }
 }
+
+/* ==========================================================================
+   REWORKED 1
+   The dental line drawings in the corners are gone. What replaces them is
+   structure rather than decoration: paper grain over flat colour, hairlines
+   that carry index numerals, photography held in a fine frame, and hover
+   states that move a line instead of a shape. No gradients, no floating
+   icons, nothing that could not be printed.
+   ========================================================================== */
+
+/* --- 1. remove the tooth and curve motifs of the previous version --------- */
+.hero-full::after,
+.philo::after,
+.close::after,
+.phero:not(.phero-urg)::before,
+.faq::before { content: none; }
+
+/* --- 2. paper grain ------------------------------------------------------
+   A flat colour field reads as screen fill. A fine grain over the whole page
+   gives it the texture of coated paper, at a density you notice only when it
+   is removed. It sits above everything, takes no clicks, and costs one
+   inline SVG. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+  opacity: .055;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+@media print { body::after { display: none; } }
+
+/* --- 3. the header earns its line ---------------------------------------- */
+.top { transition: border-color var(--t), background var(--t); }
+.top.scrolled { background: rgba(250, 249, 246, .82); backdrop-filter: saturate(150%) blur(14px); }
+
+/* --- 4. section openers: a hairline, then the heading --------------------
+   Every section now starts on a rule that runs the full width of the
+   container, with the heading hanging off it. It is the one move that makes
+   a page feel edited rather than assembled. */
+.sec-head-split,
+.soins-head .sec-head { position: relative; padding-top: 30px; }
+.sec-head-split::before,
+.soins-head .sec-head::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: var(--hair);
+}
+.philo .sec-head-split::before { background: var(--hair-dark); }
+
+/* --- 5. index numerals ---------------------------------------------------
+   The family sections carried a small number. It becomes a typographic
+   marker: tabular figures, letterspaced, sitting on its own rule above the
+   heading, the way a chapter number sits in a book. */
+.hfam-n {
+  display: block;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  font-variant-numeric: tabular-nums;
+  color: var(--petrol);
+  padding-top: 14px;
+  margin-bottom: 18px;
+  border-top: 1px solid var(--hair);
+  width: 100%;
+}
+.steps .num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .12em;
+}
+
+/* --- 6. the care list becomes an index -----------------------------------
+   Same rows as before, now numbered, with a rule that darkens under the
+   cursor and a name that steps forward. The numerals come from a CSS counter,
+   so the markup is untouched. The selector carries the .hfam-txt ancestor
+   because the desktop rule further up the sheet is written that way and would
+   otherwise win on specificity and scramble the columns. */
+.care-list { counter-reset: care; border-top-color: var(--ink); }
+.care-list li { counter-increment: care; transition: border-color var(--t); }
+.care-list li:hover { border-bottom-color: var(--petrol); }
+@media (min-width: 901px) {
+  .care-list a,
+  .hfam-txt .care-list a {
+    grid-template-columns: 44px minmax(190px, 260px) minmax(0, 1fr);
+    gap: 0 28px;
+    padding: 18px 0;
+    align-items: baseline;
+  }
+  .care-list a::before,
+  .hfam-txt .care-list a::before {
+    content: counter(care, decimal-leading-zero);
+    font-size: 12.5px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: .1em;
+    color: var(--grey);
+    transition: color var(--t);
+  }
+  .care-list a .cl-n { transition: transform var(--t), color var(--t); }
+  .care-list a:hover .cl-n { transform: translateX(4px); color: var(--petrol); }
+  .care-list a:hover::before { color: var(--petrol); }
+}
+.care-list a:hover .cl-n { text-decoration: none; }
+
+/* --- 7. photography held in a frame --------------------------------------
+   A hairline drawn inside the image edge separates the photograph from the
+   page without a border box, and the slow settle on reveal replaces the wipe
+   the previous version used. */
+.mask picture,
+.hero-art picture,
+.post picture,
+.loc-pic,
+.team-pic picture,
+.profile-pic,
+.philo-pic { position: relative; }
+.mask picture::after,
+.hero-art picture::after,
+.post picture::after,
+.loc-pic::after,
+.team-pic picture::after,
+.profile-pic::after,
+.philo-pic::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(11, 82, 105, .16);
+  pointer-events: none;
+}
+.js .mask img,
+.js .hero-art img { transform: scale(1.045); transition: transform 1.6s var(--ease); }
+.js .mask.in img,
+.js .hero-art.in img { transform: none; }
+
+/* --- 8. links and buttons move a line, not a box -------------------------
+   The text link keeps a quiet rule at all times, and a second rule in the
+   full ink colour draws across it from the left on hover. The button fills
+   from the bottom. Both move a line rather than a box, which is what keeps
+   the page calm while still answering the cursor. */
+.link { position: relative; display: inline-block; text-decoration: none; padding-bottom: 3px; }
+.link::before,
+.link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: currentColor;
+}
+.link::before { opacity: .32; }
+.link::after { transform: scaleX(0); transform-origin: left; transition: transform var(--t); }
+.link:hover::after { transform: scaleX(1); }
+
+.btn { position: relative; overflow: hidden; z-index: 0; }
+.btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--deep);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform var(--t);
+}
+.btn:hover::before { transform: scaleY(1); }
+.btn-line::before { background: var(--pale); }
+.btn-onDark::before { background: #fff; }
+
+/* --- 9. cards lift on a line --------------------------------------------- */
+.loc, .post a, .thc a { transition: transform var(--t); }
+.post a:hover, .thc a:hover { transform: translateY(-3px); }
+
+/* --- 10. the treatment index --------------------------------------------
+   A closing section that lists every treatment in one editorial block, so a
+   reader who does not know the name of what they need can still scan the
+   whole offer in one screen. */
+.tindex { padding-block: var(--band); }
+.tindex .wrap { max-width: var(--wrap); }
+.tindex h2 { margin-bottom: 28px; }
+.tindex-list {
+  counter-reset: tidx;
+  columns: 3;
+  column-gap: 56px;
+  border-top: 1px solid var(--ink);
+  padding-top: 6px;
+}
+.tindex-list li { counter-increment: tidx; break-inside: avoid; border-bottom: 1px solid var(--hair); }
+.tindex-list a {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 12px 2px;
+  text-decoration: none;
+  color: var(--ink);
+  font-size: 16.5px;
+  transition: color var(--t);
+}
+.tindex-list a::before {
+  content: counter(tidx, decimal-leading-zero);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .1em;
+  color: var(--grey);
+  transition: color var(--t);
+}
+.tindex-list a:hover, .tindex-list a:hover::before { color: var(--petrol); }
+@media (max-width: 900px) { .tindex-list { columns: 2; column-gap: 32px; } }
+@media (max-width: 560px) { .tindex-list { columns: 1; } }
+
+/* --- 11. motion stays optional ------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .js .mask img, .js .hero-art img { transform: none !important; }
+  .btn::before, .link::after, .care-list a::after { transition: none; }
+}
+
+/* ==========================================================================
+   REWORKED 1, PASSE SOBRE
+   La couche d'animation au défilement est retirée. Le contenu est présent à
+   l'arrivée, l'en-tête garde le même filet du haut jusqu'au bas de la page, et
+   plus rien ne se déplace au survol. Ce qui répond au curseur répond par la
+   couleur ou par un filet, jamais par un mouvement de bloc. Les seules
+   transitions qui restent servent à dire qu'un élément est cliquable ou
+   qu'un panneau est ouvert.
+   ========================================================================== */
+
+/* --- 1. plus de saut de défilement -------------------------------------- */
+html { scroll-behavior: auto; }
+
+/* --- 2. le contenu ne se révèle plus, il est là ------------------------- */
+.js .r,
+.js .r.in,
+.js .mask picture,
+.js .mask.in picture,
+.js .mask img,
+.js .mask.in img,
+.js .hero-art img,
+.js .hero-art.in img {
+  opacity: 1;
+  transform: none;
+  clip-path: none;
+  transition: none;
+}
+
+/* --- 3. l'en-tête ne réagit plus au défilement --------------------------
+   Le filet est permanent, donc il n'y a plus rien à basculer. */
+.top,
+.top.scrolled {
+  background: rgba(250, 249, 246, .94);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--hair);
+  transition: none;
+}
+
+/* --- 4. plus aucun zoom d'image au survol ------------------------------- */
+.hero-pic img,
+.loc-pic img,
+.loc-pic:hover img,
+.loc-link:hover img,
+.half img,
+.half:hover img,
+.post img,
+.post a:hover img {
+  transform: none;
+  transition: none;
+}
+
+/* --- 5. plus aucun bloc qui se soulève ---------------------------------- */
+.loc,
+.post a,
+.thc a,
+.quick-list a {
+  transition: border-color var(--t), color var(--t);
+}
+.post a:hover,
+.thc a:hover,
+.quick-list a:hover {
+  transform: none;
+}
+
+/* --- 6. le survol se dit par la couleur --------------------------------
+   Le lien garde son filet, qui change d'intensité au lieu de se tracer. Le
+   bouton change de fond, sans remplissage qui monte. Le nom d'un soin ne
+   glisse plus, seul le filet de sa ligne et sa couleur bougent. */
+.link::after { display: none; }
+.link::before { opacity: .45; transition: opacity var(--t); }
+.link:hover::before { opacity: 1; }
+
+.btn::before { display: none; }
+.btn { overflow: visible; transition: background var(--t), color var(--t), border-color var(--t); }
+
+.care-list a .cl-n,
+.care-list a:hover .cl-n { transform: none; transition: color var(--t); }
+
+/* --- 7. ce qui garde une transition, et pourquoi -----------------------
+   Le trait du menu mobile, qui devient une croix, et la flèche des questions
+   fréquentes, qui pivote quand le panneau s'ouvre. Les deux disent un
+   changement d'état, ils ne décorent rien. */

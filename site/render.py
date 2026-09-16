@@ -550,6 +550,12 @@ def render_lang(theme_key, lang, C, T, picture, head, write):
             + f'</span><span class="thc-txt"><span class="thc-name">{p["name"]}</span><span class="thc-role">{p["role"]}</span></span></a></li>'
             for p in C.PEOPLE
         )
+        # every treatment in one editorial index, so a reader who does not know
+        # the name of what they need can still scan the whole offer at a glance
+        tindex = "".join(
+            f'<li><a href="{px}/soins/{c}/">{C.CARE_SHORT[c]}</a></li>'
+            for f in C.FAMILIES for c in f["cares"]
+        )
         links = {"book": C.BOOKING, "urg": px + "/urgences/", "form": px + "/formulaire/"}
         quick = "".join(f'<li><a class="quick-{k}" href="{links[k]}"{" target=_blank rel=noopener" if k == "book" else ""}><span>{lbl}</span></a></li>' for lbl, k in T["quick_items"])
         kind, img = TH["hero"]
@@ -600,6 +606,12 @@ def render_lang(theme_key, lang, C, T, picture, head, write):
 <section class="blog-sec band-tint" aria-labelledby="blog-h">
   <div class="wrap"><div class="sec-head sec-head-split"><h2 id="blog-h">{T['blog_h']}</h2><p>{T['blog_p']}</p></div>
     <ul class="posts">{posts}</ul><p class="more"><a class="link" href="{px}/blog/">{T['blog_all']}</a></p></div>
+</section>
+<section class="tindex" aria-labelledby="tindex-h">
+  <div class="wrap">
+    <div class="sec-head sec-head-split"><h2 id="tindex-h">{T['nav_all']}</h2><p>{T['soins_home_p']}</p></div>
+    <ul class="tindex-list">{tindex}</ul>
+  </div>
 </section>
 """
     page("/", *C.META["home"], "/", home, [C.schema_dentist(base)], og=TH["hero"][1], closing_args=())

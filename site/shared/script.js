@@ -1,15 +1,9 @@
-/* Shared behaviour: header, mobile menu, search, reveals, practice memory, patient form. */
+/* Shared behaviour: mobile menu, search, dropdowns, practice memory, patient form.
+   No scroll listeners and no reveals: this line shows its content on arrival and
+   the header keeps the same rule whether the page is at the top or not. */
 (function () {
   var html = document.documentElement;
   html.classList.add('js');
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var top = document.getElementById('top');
-
-  // header state
-  if (top) {
-    var onScroll = function () { top.classList.toggle('scrolled', window.scrollY > 12); };
-    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
-  }
 
   // mobile menu
   var burger = document.querySelector('.burger');
@@ -58,31 +52,6 @@
     if (e.key === 'Escape' && search && !search.hidden) closeSearch();
     if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
   });
-
-  // reveals
-  var targets = [].slice.call(document.querySelectorAll('.mask, .r, .hero-pic, .hero-band, .loc, .quick-list li, .trust-item, .soin-row'));
-  if (reduce || !('IntersectionObserver' in window)) {
-    targets.forEach(function (el) { el.classList.add('in'); });
-  } else {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
-    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.1 });
-    targets.forEach(function (el) { el.classList.add('r'); io.observe(el); });
-    // Safety net: a reveal that never fires leaves a block invisible, which is
-    // far worse than a missed animation. Anything already inside the viewport
-    // is shown on the next scroll tick, whatever the observer did.
-    var sweep = function () {
-      var vh = window.innerHeight;
-      targets.forEach(function (el) {
-        if (el.classList.contains('in')) return;
-        var box = el.getBoundingClientRect();
-        if (box.top < vh && box.bottom > 0) { el.classList.add('in'); io.unobserve(el); }
-      });
-    };
-    window.addEventListener('scroll', sweep, { passive: true });
-    window.addEventListener('resize', sweep, { passive: true });
-    window.addEventListener('load', sweep);
-  }
 
   // dropdown menus: click or keyboard on the small button, hover handled in CSS
   document.querySelectorAll('.has-sub').forEach(function (li) {
@@ -195,7 +164,7 @@
       progress.textContent = pf.getAttribute('data-step') + ' ' + (i + 1) + ' ' + pf.getAttribute('data-of') + ' ' + steps.length;
       if (i === steps.length - 1) { recap(); var dt = pf.querySelector('#p-date'); if (dt && !dt.value) dt.value = new Date().toISOString().slice(0, 10); }
       steps[i].querySelector('legend').setAttribute('tabindex', '-1'); steps[i].querySelector('legend').focus({ preventScroll: false });
-      window.scrollTo({ top: pf.getBoundingClientRect().top + window.scrollY - 120, behavior: reduce ? 'auto' : 'smooth' });
+      window.scrollTo(0, pf.getBoundingClientRect().top + window.scrollY - 120);
     };
     next.addEventListener('click', function () { if (validate(steps[cur])) { save(); show(cur + 1); } });
     prev.addEventListener('click', function () { show(cur - 1); });
